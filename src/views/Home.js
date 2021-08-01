@@ -9,9 +9,6 @@ import {
   DropdownToggle,
   DropdownMenu,
   DropdownItem,
-  Modal,
-  ModalBody,
-  ModalFooter,
   UncontrolledButtonDropdown,
   InputGroup,
   Input,
@@ -25,85 +22,62 @@ import { Home, MoreVertical, Check } from "react-feather"
 import { useState, useEffect } from "react"
 
 const Index = () => {
-  const [agregarModal, setAgregarModal] = useState(false)
-  const [modalEliminar, setModalEliminar] = useState(false)
-  const [modalEditar, setModalEditar] = useState(false)
+ 
   const url = "http://localhost:3000/desarolladores/"
   const [data, setData] = useState([])
-  const [desarolladorSeleccionado, setDesarolladorSeleccionado] = useState({
+  const [desarolladorSeleccionado, setdesarolladorSeleccionado] = useState({
+    id: "",
     name: "",
     profesion: "",
-    id: "",
     puesto: "",
     tecnologia: ""
   })
   const handleChange = (e) => {
     const { name, value } = e.target
-    setDesarolladorSeleccionado((prevState) => ({
+    setdesarolladorSeleccionado((prevState) => ({
       ...prevState,
       [name]: value
     }))
   }
-  const seleccionarDesarollador = (Desarollador, caso) => {
-      setDesarolladorSeleccionado(Desarollador)(caso === "Editar")
-}
-
-  const peticionGet = async () => {
+const peticionGet = async () => {
     await axios.get(url).then((response) => {
       setData(response.data)
     })
   }
+
+  const peticionPut = async() => {
+    await axios.put(url + desarolladorSeleccionado.id, desarolladorSeleccionado)
+    .then(response => {
+      const dataNueva = data
+      dataNueva.map(desarollador => {
+        if (desarollador.id === desarolladorSeleccionado.id) {
+          desarollador.name = desarolladorSeleccionado.name
+          desarollador.profesion = desarolladorSeleccionado.profesion
+          desarollador.puesto = desarolladorSeleccionado.puesto
+          desarollador.tecnologia = desarolladorSeleccionado.tecnologia
+        }
+      })
+      setData(dataNueva)
+      abrirCerrarModalEditar()
+    }).catch(error => {
+      console.log(error)
+    })
+  }
+
+  const peticionDelete = async() => {
+    await axios.delete(url + 2)
+    .then(response => {
+      setData(data.filter(desarollador => desarollador.id !== desarolladorSeleccionado.id))
+      alert('Se ha eliminado con exito')
+      location.reload()
+    })
+  }
+
+  
   useEffect(() => {
     peticionGet()
   }, [])
-
-  const peticionDelete = async () => {
-    await axios
-      .delete(url + desarolladorSeleccionado.id)
-      .then((response) => {
-        setData(
-          data.filter(
-            (desarollador) => desarollador.id !== desarolladorSeleccionado.id
-          )
-        )
-      })
-      .catch((error) => {
-        console.log(error)
-      })
-  }
-  const peticionPut = async () => {
-    await axios
-      .put(baseUrl + desarolladorSeleccionado.id, desarolladorSeleccionado)
-      .then((response) => {
-        const dataNueva = data
-        dataNueva.map((desarollador) => {
-          if (desarollador.id === desarolladorSeleccionado.id) {
-            desarollador.name = desarolladorSeleccionado.name
-            desarollador.profesion = desarolladorSeleccionado.profesion
-            desarollador.puesto = desarolladorSeleccionado.puesto
-            desarollador.tecnologia = desarolladorSeleccionado.tecnologia
-          }
-        })
-        setData(dataNueva)
-        abrirCerrarModalEditar()
-      })
-      .catch((error) => {
-        console.log(error)
-      })
-  }
-
-  const peticionPost = async () => {
-    await axios
-      .post(url, desarolladorSeleccionado)
-      .then((response) => {
-        setData(data.concat(response.data))
-      })
-      .catch((error) => {
-        console.log(error)
-      })
-    alert("Se agrego con exito, puede cerrar la ventana.")
-  }
-
+  
   const columnas = [
     {
       name: "Nombre",
@@ -130,127 +104,24 @@ const Index = () => {
       cell: (row) => (
         <div>
           <UncontrolledButtonDropdown>
-            <DropdownToggle color="flat-dark">
-              <MoreVertical size="16px" />
+            <DropdownToggle color="flat-dark" >
+              <MoreVertical size="16px"  />
             </DropdownToggle>
-            <DropdownMenu className="text-center">
+            <DropdownMenu className="text-center" >
               <DropdownItem
-                onClick={() => setModalEditar(!modalEditar)}
-                onClick={ (event, rowData) => seleccionarDesarollador(rowData, "Editar")}
+                href='edit'
                 tag="a"
               >
                 Editar
-                <Modal
-                  isOpen={modalEditar}
-                  toggle={() => setModalEditar(!modalEditar)}
-                >
-                  <ModalBody className="m-2 d-flex row">
-                    <p className="h3">Editar desarollador</p>
-                    <InputGroup className="m-2 " size="lg">
-                      <Input
-                        clasaName="m-4"
-                        name="name"
-                        placeholder="Nombre"
-                        Label="name"
-                        onChange={handleChange}
-                      />
-                    </InputGroup>
-                    <InputGroup className="m-2 " size="lg">
-                      <Input
-                        placeholder="Profesion"
-                        Label="profesion"
-                        name="profesion"
-                        onChange={handleChange}
-                      />
-                    </InputGroup>
-                    <InputGroup className="m-2 " size="lg">
-                      <FormGroup>
-                        <Label for="exampleSelect" className="h4">
-                          Puesto
-                        </Label>
-                        <Input
-                          type="select"
-                          className="pl-5 pr-5"
-                          name="select"
-                          id="exampleSelect"
-                          name="puesto"
-                          onChange={handleChange}
-                        >
-                          <option>Elegir</option>
-                          <option>Frontend</option>
-                          <option>Backend</option>
-                          <option>Fullstack</option>
-                          <option>UX/UI</option>
-                        </Input>
-                      </FormGroup>
-                    </InputGroup>
-                    <InputGroup className="m-2 " size="lg">
-                      <FormGroup>
-                        <Label for="exampleSelect" className="h4">
-                          Tecnologia
-                        </Label>
-                        <Input
-                          type="select"
-                          className="pl-5 pr-5"
-                          name="select"
-                          id="exampleSelect"
-                          name="tecnologia"
-                          onChange={handleChange}
-                        >
-                          <option>Elegir</option>
-                          <option>React</option>
-                          <option>Laravel</option>
-                          <option>Otras</option>
-                        </Input>
-                      </FormGroup>
-                    </InputGroup>
-                  </ModalBody>
-                  <ModalFooter>
-                    <Button
-                      color="success"
-                      onClick={() => peticionPut(!modalEditar)}
-                    >
-                      Aceptar
-                    </Button>
-                    <Button
-                      color="danger"
-                      onClick={() => setModalEditar(!modalEditar)}
-                    >
-                      Cancelar
-                    </Button>
-                  </ModalFooter>
-                </Modal>
+                
               </DropdownItem>
               <DropdownItem
                 tag="a"
                 className="text-danger"
-                onClick={() => setModalEliminar(!modalEliminar)}
+                onClick={() => peticionDelete()}
               >
                 Eliminar
-                <Modal
-                  isOpen={modalEliminar}
-                  toggle={() => setModalEliminar(!modalEliminar)}
-                >
-                  <ModalBody className="m-2">
-                    <h3>Esta seguro que desea eliminar?</h3>
-                    ATENCION: Esta accion NO se puede deshacer
-                    <b>{data && data.name}</b>
-                  </ModalBody>
-                  <ModalFooter>
-                    <Button
-                      color="success"
-                      onClick={() => peticionDelete(!modalEliminar)}
-                    >
-                      Aceptar
-                    </Button>
-                    <Button
-                      color="danger"
-                      onClick={() => setModalEliminar(!modalEliminar)}
-                    >
-                      Cancelar
-                    </Button>
-                  </ModalFooter>
-                </Modal>
+                
               </DropdownItem>
             </DropdownMenu>
           </UncontrolledButtonDropdown>
@@ -281,90 +152,11 @@ const Index = () => {
           <CardTitle>Tabla de desarolladores</CardTitle>
           <Button
             color="primary"
-            onClick={() => setAgregarModal(!agregarModal)}
+            href='second-page'
           >
             + Agregar
           </Button>
-          <Modal
-            isOpen={agregarModal}
-            toggle={() => setAgregarModal(!agregarModal)}
-          >
-            <ModalBody className="m-2 d-flex row">
-              <p className="h3">Agregar desarollador</p>
-              <InputGroup className="m-2 " size="lg">
-                <Input
-                  clasaName="m-4"
-                  name="name"
-                  placeholder="Nombre"
-                  Label="name"
-                  onChange={handleChange}
-                />
-              </InputGroup>
-              <InputGroup className="m-2 " size="lg">
-                <Input
-                  placeholder="Profesion"
-                  Label="profesion"
-                  name="profesion"
-                  onChange={handleChange}
-                />
-              </InputGroup>
-              <InputGroup className="m-2 " size="lg">
-                <FormGroup>
-                  <Label for="exampleSelect" className="h4">
-                    Puesto
-                  </Label>
-                  <Input
-                    type="select"
-                    className="pl-5 pr-5"
-                    name="select"
-                    id="exampleSelect"
-                    name="puesto"
-                    onChange={handleChange}
-                  >
-                    <option>Elegir</option>
-                    <option>Frontend</option>
-                    <option>Backend</option>
-                    <option>Fullstack</option>
-                    <option>UX/UI</option>
-                  </Input>
-                </FormGroup>
-              </InputGroup>
-              <InputGroup className="m-2 " size="lg">
-                <FormGroup>
-                  <Label for="exampleSelect" className="h4">
-                    Tecnologia
-                  </Label>
-                  <Input
-                    type="select"
-                    className="pl-5 pr-5"
-                    name="select"
-                    id="exampleSelect"
-                    name="tecnologia"
-                    onChange={handleChange}
-                  >
-                    <option>Elegir</option>
-                    <option>React</option>
-                    <option>Laravel</option>
-                    <option>Otras</option>
-                  </Input>
-                </FormGroup>
-              </InputGroup>
-            </ModalBody>
-            <ModalFooter>
-              <Button
-                color="success"
-                onClick={() => peticionPost(!agregarModal)}
-              >
-                Aceptar
-              </Button>
-              <Button
-                color="danger"
-                onClick={() => setAgregarModal(!agregarModal)}
-              >
-                Cancelar
-              </Button>
-            </ModalFooter>
-          </Modal>
+        
         </CardHeader>
         <hr />
         <CardBody>
@@ -379,18 +171,7 @@ const Index = () => {
               label: "",
               size: "sm"
             }}
-            actions={[
-              {
-                icon: 'edit',
-                tooltip: 'Editar Desarollador',
-                onClick: (event, rowData) => seleccionarDesarollador(rowData, "Editar")
-              },
-              {
-                icon: 'delete',
-                tooltip: 'Eliminar Desarollador',
-                onClick: (event, rowData) => seleccionarDesarollador(rowData, "Eliminar")
-              }
-            ]}
+            
           />
         </CardBody>
       </Card>

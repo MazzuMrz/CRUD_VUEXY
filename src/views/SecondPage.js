@@ -4,20 +4,42 @@ import { Home} from 'react-feather'
 import axios from 'axios'
 import { useEffect, useState } from 'react'
 
+const AddPage = () => {
+  const [desarolladorSeleccionado, setDesarolladorSeleccionado] = useState({
+    name: "",
+    profesion: "",
+    puesto: "",
+    tecnologia: ""
+  })
+  const url = "http://localhost:3000/desarolladores/"
+  const [data, setData] = useState([])
 
-const Editpage = () => {
-  const url = "http://localhost:3000/desarolladores"
-  const [peoples, setPeoples] = useState([])
-  const peticionGet = async () => {
-    await axios.get(url).then((response) => {
-      setPeoples(response.data)
+  const handleChange = e => {
+    const {name, value} = e.target
+    setDesarolladorSeleccionado(prevState => ({
+      ...prevState,
+      [name]: value
+    }))
+    console.log(desarolladorSeleccionado)
+  }
+  const peticionGet = async() => {
+    await axios.get(url)
+    .then(response => {
+      setData(response.data)
     })
   }
-  useEffect(() => {
-    peticionGet()
+
+  const peticionPost = async() => {
+    await axios.post(url, desarolladorSeleccionado)
+    .then(response => {
+      setData(data.concat(response.data))
+      
+    })
+  }
+  useEffect(async() => {
+    await peticionGet()
   }, [])
    
-
   return (
     <div>
       <Breadcrumb>
@@ -34,27 +56,28 @@ const Editpage = () => {
           <Link to="home"> Desarolladores </Link>
         </BreadcrumbItem>
         <BreadcrumbItem active>
-          <span> Editar </span>
+          <span> Agregar </span>
         </BreadcrumbItem>
       </Breadcrumb>
       <Card>
         <CardHeader>
-          <CardTitle>Editar desarollador</CardTitle>
+          <CardTitle>Agregar desarollador</CardTitle>
         </CardHeader>
         <CardBody className="d-flex column">
           <InputGroup className="m-2 " size="lg">
-            <Input clasaName="m-4" placeholder="Nombre" />
+            <Input clasaName="m-4" placeholder="Nombre" name='name' onChange={handleChange} value={desarolladorSeleccionado.name} />
           </InputGroup>
-          <InputGroup className="m-2 " size="lg">
+          <InputGroup className="m-2 " size="lg" >
           
-            <Input placeholder="Profesion" />
+            <Input placeholder="Profesion" name='profesion' onChange={handleChange} value={desarolladorSeleccionado && desarolladorSeleccionado.profesion} />
           </InputGroup>
         </CardBody>
         <CardBody className="d-flex column">
           <InputGroup className="m-2 " size="lg">
           <FormGroup>
-        <Label for="exampleSelect" className='h4'>Puesto</Label>
-        <Input type="select" className='pl-5 pr-5' name="select" id="exampleSelect">
+        <Label for="exampleSelect" className='h4' >Puesto</Label>
+        <Input type="select" className='pl-5 pr-5' name="puesto" id="exampleSelect" onChange={handleChange} value={desarolladorSeleccionado && desarolladorSeleccionado.puesto}>
+          <option >Elegir</option>
           <option>Frontend</option>
           <option>Backend</option>
           <option>Fullstack</option>
@@ -66,7 +89,8 @@ const Editpage = () => {
           <InputGroup className="m-2 " size="lg">
           <FormGroup>
         <Label for="exampleSelect" className='h4'>Tecnologia</Label>
-        <Input type="select" className='pl-5 pr-5' name="select" id="exampleSelect">
+        <Input type="select" className='pl-5 pr-5' name="tecnologia" id="exampleSelect"  onChange={handleChange} value={desarolladorSeleccionado && desarolladorSeleccionado.tecnologia}>
+          <option >Elegir</option>
           <option>React</option>
           <option>Laravel</option>
           <option>Otras</option>
@@ -78,7 +102,7 @@ const Editpage = () => {
         </CardBody>
         <CardBody className='d-flex row justify-content-between pl-5 pr-5' >    
         <Button.Ripple className='' href='home' color='primary' outline>Cancelar</Button.Ripple>
-        <Button.Ripple  color='primary'>Editar</Button.Ripple> 
+        <Button.Ripple  color='primary' onClick={peticionPost} href='home'>Agregar</Button.Ripple> 
         </CardBody>
 
       </Card>
@@ -86,4 +110,4 @@ const Editpage = () => {
   )
 }
 
-export default Editpage
+export default AddPage

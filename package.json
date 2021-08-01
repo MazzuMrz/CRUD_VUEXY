@@ -35,7 +35,7 @@
     "history": "5.0.0",
     "html-to-draftjs": "1.5.0",
     "intl-messageformat": "7.8.4",
-    "jquery": "^3.5.1",
+    "jquery": "^3.6.0",
     "jsonwebtoken": "8.5.1",
     "leaflet": "1.6.0",
     "material-table": "^1.69.3",

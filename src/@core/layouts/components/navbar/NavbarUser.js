@@ -24,9 +24,9 @@ const NavbarUser = props => {
     <Fragment>
       <ul className='navbar-nav d-xl-none d-flex align-items-center'>
         <NavItem className='mobile-menu mr-auto'>
-          <NavLink className='nav-menu-main menu-toggle hidden-xs is-active' onClick={() => setMenuVisibility(true)}>
-            <Menu className='ficon' />
-          </NavLink>
+          
+          <p className='h2 text-primary'>Sitenso</p>
+          
         </NavItem>
       </ul>
       <div className='bookmark-wrapper d-flex align-items-center'>
